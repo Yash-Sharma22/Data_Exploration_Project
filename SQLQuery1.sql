@@ -1,12 +1,55 @@
+CREATE DATABASE project_1;
 USE project_1;
 CREATE TABLE goldusers_signup(
 userid integer,
 gold_signup_date date);
 INSERT INTO goldusers_signup(userid,gold_signup_date) 
 VALUES 
-(1,'09-22-2017'),
-(3,'04-21-2017');
-SELECT * FROM goldusers_signup;
+(1, '09-22-2017'),
+(3, '04-21-2017');
+
+CREATE TABLE users(
+  userid integer,
+  signup_date date); 
+
+INSERT INTO users(userid, signup_date) 
+VALUES (1, '09-02-2014'),
+(2, '01-15-2015'),
+(3, '04-11-2014');
+
+CREATE TABLE sales(
+  userid integer,
+  created_date date,
+  product_id integer); 
+
+INSERT INTO sales(userid, created_date, product_id) 
+VALUES (1, '04-19-2017',2),
+(3, '12-18-2019',1),
+(2, '07-20-2020',3),
+(1, '10-23-2019',2),
+(1, '03-19-2018',3),
+(3, '12-20-2016',2),
+(1, '11-09-2016',1),
+(1, '05-20-2016',3),
+(2, '09-24-2017',1),
+(1, '03-11-2017',2),
+(1, '03-11-2016',1),
+(3, '11-10-2016',1),
+(3, '12-07-2017',2),
+(3, '12-15-2016',2),
+(2, '11-08-2017',2),
+(2, '09-10-2018',3);
+
+CREATE TABLE product(
+  product_id integer,
+  product_name text,
+  price integer); 
+
+INSERT INTO product(product_id, product_name, price) 
+ VALUES
+(1, 'p1',980),
+(2, 'p2',870),
+(3, 'p3',330);
 
 USE project_1;
 SELECT * FROM goldusers_signup;
@@ -14,14 +57,14 @@ SELECT * FROM product;
 SELECT * FROM sales;
 SELECT * FROM users;
 
--- Q1 Total amount each customer spend on zomato?
+-- Q1 Total amount each customer spend on online food store?
 SELECT a.userid, SUM(b.price) as total_amt
 FROM sales as a
 INNER JOIN product as b
 ON a.product_id = b.product_id
 GROUP BY a.userid;
 
--- Q-2 How many days each customer visited zomato?
+-- Q-2 How many days each customer visited online food store?
 SELECT userid,COUNT(created_date) as days_visit
 FROM sales 
 GROUP BY userid;
@@ -92,9 +135,9 @@ INNER JOIN product as d
 ON c.product_id = d.product_id) as e
 GROUP BY userid;
 
--- Q-9(**) If buying each product generates points for eg 5rs=2 zomato pooints and each product 
--- has different purchasing points for eg for p1 5rs=1 zomato point, for p2 10rs=5zomato point 
--- and p3 5rs=1 zomato point. Calculate points collected by each customer and for which product
+-- Q-9(**) If buying each product generates points for eg 5rs=2 points and each product 
+-- has different purchasing points for eg for p1 5rs=1 point, for p2 10rs=5 points
+-- and p3 5rs=1 point. Calculate points collected by each customer and for which product
 -- most points have been given till now?
 SELECT userid,SUM(points_earned) as total_pts FROM
 (SELECT e.*,amt/Points as points_earned FROM
@@ -129,7 +172,7 @@ GROUP BY product_id)as g)as f
 WHERE rnk=1;
 
 -- Q-10 In the first one year after a customer joins the gold program(including the joining date)
--- irrespective of what the customer has purchased they earn 5 zomato points for every 10rs spent 
+-- irrespective of what the customer has purchased they earn 5 points for every 10rs spent 
 -- who earned more 1 or 3 and what was their points earnings in their first yr?
 -- (*)created_date<=gold_signup_date+365
 SELECT c.*,d.price*0.5 as total_pt FROM
