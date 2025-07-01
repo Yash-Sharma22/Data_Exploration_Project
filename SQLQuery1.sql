@@ -70,29 +70,29 @@ FROM sales
 GROUP BY userid;
 
 -- Q-3 What was the first product purchased by each customer?
--- New
 SELECT * FROM
 (SELECT*, rank() 
 over(partition by userid order by created_date) rnk 
 FROM sales) a WHERE rnk = 1;
 
 -- Q-4 What is the most purchased item on the menu and how many times was it purchases by all customers?
+-- METHOD - 1
 SELECT product_id, COUNT(product_id) as num
 FROM sales 
 GROUP BY product_id
 ORDER BY num DESC;
---
+-- METHOD - 2
 SELECT userid, COUNT(product_id)
 FROM sales
 WHERE product_id =
-(SELECT TOP 1 product_id---, COUNT(product_id) as num --- TOP1 Is just like limit1 :)
+(SELECT product_id
 FROM sales 
 GROUP BY product_id
 ORDER BY COUNT(product_id) DESC)
-GROUP BY userid;
+GROUP BY userid
+LIMIT 1;
 
 -- Q-5 Which item was the most popular among the customers?
--- GOOD
 SELECT * 
 FROM
 (SELECT *, RANK()
@@ -139,20 +139,21 @@ GROUP BY userid;
 -- has different purchasing points for eg for p1 5rs=1 point, for p2 10rs=5 points
 -- and p3 5rs=1 point. Calculate points collected by each customer and for which product
 -- most points have been given till now?
+-- METHOD 1
 SELECT userid,SUM(points_earned) as total_pts FROM
 (SELECT e.*,amt/Points as points_earned FROM
 (SELECT d.*, CASE WHEN product_id=1 THEN 5
 WHEN product_id=2 THEN 2
 WHEN product_id=3 THEN 5
 ELSE 0 END AS Points FROM
-(SELECT userid,product_id,SUM(price) as amt FROM --forgot to mention colmn name and error:)
+(SELECT userid,product_id,SUM(price) as amt FROM 
 (SELECT a.*,b.price
 FROM sales as a
 INNER JOIN product as b
 ON a.product_id = b.product_id)as c
 GROUP BY userid,product_id)as d)as e)as f
 GROUP BY userid;
---
+-- METHOD 2
 SELECT * FROM
 (SELECT *,RANK()
 OVER(ORDER BY total_pts DESC) rnk FROM
@@ -195,4 +196,4 @@ SELECT g.*,CASE WHEN rnk=0 THEN 'NA' ELSE rnk END AS rnkk FROM
 FROM sales as a
 LEFT JOIN goldusers_signup as b
 ON a.userid = b.userid AND created_date>=gold_signup_date)as c)as g;
--- CAST FUNCTION IS USED TO CHANGE DATATYPE
+
